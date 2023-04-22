@@ -3,6 +3,7 @@
   "version": "5.2.0",
   "private": true,
   "description": "An out-of-box UI solution for enterprise applications",
+  "license": "UNLICENSED",
   "scripts": {
     "analyze": "cross-env ANALYZE=1 umi build",
     "build": "umi build",
@@ -53,6 +54,7 @@
     "@umijs/preset-ui": "^2.2.9",
     "@umijs/route-utils": "^2.0.0",
     "antd": "^4.20.0",
+    "caniuse-lite": "^1.0.30001481",
     "classnames": "^2.3.0",
     "lodash": "^4.17.0",
     "moment": "^2.29.0",
