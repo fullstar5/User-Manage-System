@@ -20,8 +20,12 @@ public interface UserService extends IService<User> {
      * @param checkPassword double check
      * @return user id
      */
+
+
     long userRegister(String userAccount, String userPassword, String checkPassword);
 
 
     User userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    User desensitize (User originUser);
 }

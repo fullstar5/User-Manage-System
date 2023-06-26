@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.star.usercenter.constant.UserContent.USER_LOGIN_STATE;
+
 /**
 * @author Administrator
 * @description 针对表【user(user_table)】的数据库操作Service实现
@@ -31,7 +33,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private static  final String SALT = "star";
 
-    private static final String USER_LOGIN_STATE = "userLoginState";
+//    public static final String USER_LOGIN_STATE = "userLoginState";
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -104,18 +106,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return null;
         }
         // 3. desensitization
-        User saftyUser = new User();
-        saftyUser.setId(user.getId());
-        saftyUser.setUsername(user.getUsername());
-        saftyUser.setUserAccount(user.getUserAccount());
-        saftyUser.setAvatarUrl(user.getAvatarUrl());
-        saftyUser.setGender(user.getGender());
-        saftyUser.setPhone(user.getPhone());
-        saftyUser.setEmail(user.getEmail());
-        saftyUser.setUserStatus(user.getUserStatus());
-        saftyUser.setCreateTime(user.getCreateTime());
+        User saftyUser = desensitize(user);
         // 4. record user session
         request.getSession().setAttribute(USER_LOGIN_STATE, saftyUser);
+        return saftyUser;
+    }
+
+    @Override
+    public User desensitize (User originUser){
+        User saftyUser = new User();
+        saftyUser.setId(originUser.getId());
+        saftyUser.setUsername(originUser.getUsername());
+        saftyUser.setUserAccount(originUser.getUserAccount());
+        saftyUser.setAvatarUrl(originUser.getAvatarUrl());
+        saftyUser.setGender(originUser.getGender());
+        saftyUser.setPhone(originUser.getPhone());
+        saftyUser.setEmail(originUser.getEmail());
+        saftyUser.setUserRole(originUser.getUserRole());
+        saftyUser.setUserStatus(originUser.getUserStatus());
+        saftyUser.setCreateTime(originUser.getCreateTime());
         return saftyUser;
     }
 }

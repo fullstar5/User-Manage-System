@@ -1,10 +1,10 @@
 package com.star.usercenter.model.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * user_table
@@ -72,10 +72,15 @@ public class User implements Serializable {
 
     /**
      * 0 - not delete
-     * 1 - deleted
+1 - deleted
      */
     @TableLogic
     private Integer isDelete;
+
+    /**
+     * identity: 0 - normal user, 1 - admin
+     */
+    private Integer userRole;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
