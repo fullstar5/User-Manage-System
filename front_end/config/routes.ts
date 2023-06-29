@@ -31,12 +31,19 @@ export default [
     name: 'admin',
     icon: 'crown',
     access: 'canAdmin',
+    component: './Admin',
     routes: [
+      // {
+      //   path: '/admin/sub-page',
+      //   name: 'sub-page',
+      //   icon: 'smile',
+      //   component: './Welcome',
+      // },
       {
-        path: '/admin/sub-page',
-        name: 'sub-page',
+        path: '/admin/user-manage',
+        name: 'user-manage-page',
         icon: 'smile',
-        component: './Welcome',
+        component: './Admin/UserManage',
       },
       {
         component: './404',

@@ -20,7 +20,7 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * user name
+     * username
      */
     private String username;
 

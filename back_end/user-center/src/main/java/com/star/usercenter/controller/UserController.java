@@ -1,6 +1,5 @@
 package com.star.usercenter.controller;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.star.usercenter.model.domain.User;
 import com.star.usercenter.model.domain.request.UserLoginRequest;
@@ -52,6 +51,18 @@ public class UserController {
             return null;
         }
         return userService.userLogin(userAccount, userPassword, request);
+    }
+
+    @GetMapping("/currentUser")
+    public User getCurrentUser(HttpServletRequest request){
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User currentUser = (User) userObj;
+        if (currentUser == null){
+            return null;
+        }
+        long userID = currentUser.getId();
+        User byId = userService.getById(userID);
+        return userService.desensitize(byId);
     }
 
     @GetMapping("/search")

@@ -114,6 +114,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User desensitize (User originUser){
+        if (originUser == null){
+            return null;
+        }
         User saftyUser = new User();
         saftyUser.setId(originUser.getId());
         saftyUser.setUsername(originUser.getUsername());
