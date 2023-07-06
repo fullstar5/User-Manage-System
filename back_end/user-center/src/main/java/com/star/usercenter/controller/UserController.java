@@ -1,6 +1,10 @@
 package com.star.usercenter.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.star.usercenter.common.BaseResponse;
+import com.star.usercenter.common.ErrorCode;
+import com.star.usercenter.common.ResultUtils;
+import com.star.usercenter.exception.BusinessException;
 import com.star.usercenter.model.domain.User;
 import com.star.usercenter.model.domain.request.UserLoginRequest;
 import com.star.usercenter.model.domain.request.UserRegisterRequest;
@@ -10,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,9 +29,9 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public Long userRegister(@RequestBody UserRegisterRequest userRegisterRequest){
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest){
         if (userRegisterRequest == null){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
@@ -37,68 +40,75 @@ public class UserController {
             return null;
         }
         long id = userService.userRegister(userAccount, userPassword, checkPassword);
-        return id;
+        return ResultUtils.success(id);
     }
 
     @PostMapping("/login")
-    public User userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request){
+    public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request){
         if (userLoginRequest == null){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, " login request is empty");
         }
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword)){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "login params is/are empty");
         }
-        return userService.userLogin(userAccount, userPassword, request);
+        User user = userService.userLogin(userAccount, userPassword, request);
+        return ResultUtils.success(user);
     }
 
     @PostMapping("/logout")
-    public Integer userLogout(HttpServletRequest request){
+    public BaseResponse<Integer> userLogout(HttpServletRequest request){
         if (request == null) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        return userService.userLogout(request);
+        int i = userService.userLogout(request);
+        return ResultUtils.success(i);
     }
 
 
     @GetMapping("/currentUser")
-    public User getCurrentUser(HttpServletRequest request){
+    public BaseResponse<User> getCurrentUser(HttpServletRequest request){
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User currentUser = (User) userObj;
         if (currentUser == null){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "params is/are empty");
         }
         long userID = currentUser.getId();
         User byId = userService.getById(userID);
-        return userService.desensitize(byId);
+        User desensitize = userService.desensitize(byId);
+        return ResultUtils.success(desensitize);
     }
 
     @GetMapping("/search")
-    public List<User> searchUsers(String username, HttpServletRequest request){
+    public BaseResponse<List<User>> searchUsers(String username, HttpServletRequest request){
+        // not admin
         if (!isAdmin(request)){
-            return new ArrayList<>();
+            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(username)){
             queryWrapper.like("username", username);
         }
         List<User> userList = userService.list(queryWrapper);
-        return userList.stream().map(user -> {
+        List<User> collect = userList.stream().map(user -> {
             user.setUserPassword(null);
             return userService.desensitize(user);
         }).collect(Collectors.toList());
+        return ResultUtils.success(collect);
     }
 
     @PostMapping("/delete")
-    public boolean deleteUser(@RequestBody long id, HttpServletRequest request){
+    public BaseResponse<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request){
+        // not admin
         if (!isAdmin(request)){
-            return false;
+            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         if (id <= 0){
-            return false;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "id not valid");
         }
-        return userService.removeById(id);
+        boolean b = userService.removeById(id);
+        return ResultUtils.success(b);
     }
 
     private boolean isAdmin(HttpServletRequest request){

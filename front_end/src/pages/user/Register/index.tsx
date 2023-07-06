@@ -26,11 +26,10 @@ const Register: React.FC = () => {
       return;
     }
     try {
-
-
       // user register
       const id = await register(values);
-      if (id > 0) {
+
+      if (id) {
         const defaultLoginSuccessMessage = intl.formatMessage({
           id: 'pages.register.success',
           defaultMessage: 'register success！',
@@ -46,16 +45,13 @@ const Register: React.FC = () => {
         });
         return;
       }
-      else {
-        throw new Error(`register error id = ${id}`);
-      }
     }
-    catch (error) {
+    catch (error: any) {
       const defaultLoginFailureMessage = intl.formatMessage({
         id: 'pages.login.failure',
         defaultMessage: '登录失败，请重试！',
       });
-      message.error(defaultLoginFailureMessage);
+      message.error(error.message ?? defaultLoginFailureMessage);
     }
   };
 

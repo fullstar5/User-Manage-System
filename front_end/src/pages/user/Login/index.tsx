@@ -66,7 +66,7 @@ const Login: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.content}>
         <LoginForm
-          title="编程导航知识星球"
+          title="User Center"
           initialValues={{
             autoLogin: true,
           }}

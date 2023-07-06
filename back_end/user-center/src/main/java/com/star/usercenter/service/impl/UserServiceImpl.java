@@ -1,14 +1,14 @@
 package com.star.usercenter.service.impl;
-import java.util.Date;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.star.usercenter.common.ErrorCode;
+import com.star.usercenter.exception.BusinessException;
 import com.star.usercenter.model.domain.User;
 import com.star.usercenter.service.UserService;
 import com.star.usercenter.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -33,36 +33,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private static  final String SALT = "star";
 
-//    public static final String USER_LOGIN_STATE = "userLoginState";
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
         // 1. basic check
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "params are/is empty");
         }
         if (userAccount.length() < 4){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "user account too short");
         }
         if (userPassword.length() < 8 || checkPassword.length() < 8){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "user password too short");
         }
         // no special characters in user account
         String validPattern = "\\pP|\\pS|\\s+";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "user account include special characters");
         }
         // password and double check password
         if (!userPassword.equals(checkPassword)){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "two passwords are different");
         }
         // no repeat user account
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         long count = userMapper.selectCount(queryWrapper);
         if (count > 0){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "user account already exist");
         }
         // 2. encrypt password
         String s = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -81,19 +80,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 1. basic check
         if (StringUtils.isAnyBlank(userAccount, userPassword)){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "params are/is empty");
         }
         if (userAccount.length() < 4){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "user account too short");
         }
         if (userPassword.length() < 8){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "user password too short");
         }
         // no special characters in user account
         String validPattern = "\\pP|\\pS|\\s+";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "user account include special characters");
         }
         // 2. encrypt password
         String s = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -103,7 +102,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = userMapper.selectOne(queryWrapper);
         if (user == null){
             log.info("user login failed, userAccount or userPassword couldn't match");
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 3. desensitization
         User saftyUser = desensitize(user);

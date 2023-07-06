@@ -51,6 +51,14 @@ declare namespace API {
     success?: boolean;
   };
 
+  type BaseResponse<T> = {
+    code: number;
+    data: T;
+    message: string;
+    description: string;
+
+  }
+
   type FakeCaptcha = {
     code?: number;
     status?: string;
