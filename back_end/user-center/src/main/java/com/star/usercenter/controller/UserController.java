@@ -23,7 +23,7 @@ import static com.star.usercenter.constant.UserContent.USER_LOGIN_STATE;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = {"http://user.markniubi.fun"}, allowCredentials = "true")
+@CrossOrigin(origins = "*", allowCredentials = "true")
 public class UserController {
 
     @Resource
